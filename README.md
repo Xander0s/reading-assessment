@@ -29,23 +29,35 @@ npm run build        # production build → dist/
 npm run preview      # preview the built app
 ```
 
-## Deployment (GitHub Pages)
+## Deployment (Cloudflare Pages)
 
-Pushes to `main` trigger `.github/workflows/deploy.yml`, which builds and publishes `dist/` to Pages.
+Deployment uses Cloudflare's Git integration — pushes to `main` are built and published automatically. No CI workflow lives in this repo.
 
 First-time setup:
 
-1. In the repo on GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-2. Push to `main`.
-3. The first run will publish to `https://<user>.github.io/reading-assessment/`.
+1. In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git**.
+2. Authorize Cloudflare against GitHub and pick `Xander0s/reading-assessment`.
+3. Configure the build:
+   - **Project name:** `reading-assessment` (gives `reading-assessment.pages.dev`)
+   - **Production branch:** `main`
+   - **Framework preset:** *None* (or "Vite" if listed)
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+   - **Node version:** `20` (set via env var `NODE_VERSION=20` if Cloudflare's default differs)
+4. Save & deploy. Every subsequent push to `main` redeploys; PRs get preview URLs automatically.
 
-The Vite `base` in `vite.config.js` is hard-coded to `/reading-assessment/` — change it if you rename the repo.
+Cloudflare-specific files in `public/`:
+
+- `_redirects` — SPA fallback so deep links resolve to `index.html`.
+- `_headers` — disables edge caching for `sw.js` / `manifest.webmanifest` (otherwise a stale service worker can be pinned), and marks hashed `/assets/*` as immutable.
+
+The Vite `base` is `/` because Cloudflare Pages serves the project at the root of its subdomain.
 
 ## JAMF Web Clip
 
 1. JAMF Pro → Configuration Profiles → New → add a **Web Clip** payload.
 2. Label: `Reading Assessment`
-3. URL: the GitHub Pages URL.
+3. URL: the Cloudflare Pages URL (e.g. `https://reading-assessment.pages.dev/`).
 4. Icon: upload `public/icon-192.png`.
 5. Full Screen: ✓
 6. Scope and deploy.
