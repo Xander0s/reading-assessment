@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { parseCSV } from '../lib/csv'
-import { uid } from '../lib/scoring'
+import { downloadCSV, parseCSV } from '../lib/csv'
+import { formatDate, uid } from '../lib/scoring'
+import { storage, Keys } from '../lib/storage'
 
 export default function StudentList({ students, setStudents, onOpenStudent }) {
   const [showAdd, setShowAdd] = useState(false)
@@ -32,6 +33,46 @@ export default function StudentList({ students, setStudents, onOpenStudent }) {
     try {
       localStorage.removeItem(`reading-assessment:assessments:${id}`)
     } catch {}
+  }
+
+  const exportAllCSV = () => {
+    const header = [
+      'Student Name',
+      'Grade',
+      'Assessment Date',
+      'Assessment Title',
+      'Words Read (1 min)',
+      'Errors',
+      'Self-Corrections',
+      'Accuracy %',
+      'WCPM',
+    ]
+    const rows = [header]
+    let total = 0
+    for (const s of students) {
+      const assessments = storage.get(Keys.ASSESSMENTS(s.id)) || []
+      const fullName = `${s.firstName} ${s.lastName}`.trim()
+      for (const a of assessments) {
+        rows.push([
+          fullName,
+          s.grade || '',
+          formatDate(a.date),
+          a.assessmentTitle,
+          a.wordsReadInMinute,
+          a.errors,
+          a.selfCorrections,
+          a.accuracy,
+          a.wcpm,
+        ])
+        total++
+      }
+    }
+    if (total === 0) {
+      alert('No assessments to export yet.')
+      return
+    }
+    const stamp = new Date().toISOString().slice(0, 10)
+    downloadCSV(`reading-assessments_${stamp}.csv`, rows)
   }
 
   const onImportCSV = async (e) => {
@@ -93,6 +134,14 @@ export default function StudentList({ students, setStudents, onOpenStudent }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">Students</h1>
         <div className="flex gap-2">
+          <button
+            className="btn-secondary"
+            onClick={exportAllCSV}
+            disabled={students.length === 0}
+            title="Export every assessment from every student"
+          >
+            Export all
+          </button>
           <button className="btn-secondary" onClick={() => fileInput.current?.click()}>
             Import CSV
           </button>
