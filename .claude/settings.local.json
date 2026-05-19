@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"F:/Psyander/Reading Assessment\" 2>&1; echo \"---\"; ls \"F:/Psyander/\" 2>&1)",
+      "Bash(npm --version)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)"
+    ]
+  }
+}
