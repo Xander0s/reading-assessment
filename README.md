@@ -1,6 +1,6 @@
 # Reading Assessment
 
-A Progressive Web App for DIBELS 8th Edition Oral Reading Fluency assessments. Works offline. Deployable via GitHub Pages and installable on iPad via JAMF Web Clip.
+A Progressive Web App for Reading Fluency assessments. Works offline. Deployable via GitHub Pages and installable on iPad via JAMF Web Clip.
 
 ## Features
 
